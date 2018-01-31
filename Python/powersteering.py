@@ -9,6 +9,7 @@ from serial import Serial
 #        (especially) power.
 STEER_MAX = 500
 POWER_MAX = 150
+STEER_TRIM = 40
 
 class PowerSteering:
 
@@ -27,17 +28,17 @@ class PowerSteering:
         self.logger.write("PowerSteering: power %d, steer %d" %
                           (power_value, steer_value))
         # Condition values past
-        if steer_value > STEER_MAX:
-            steer_value = STEER_MAX
-        elif steer_value < -STEER_MAX:
-            steer_value = -STEER_MAX
+        if steer_value > STEER_MAX - STEER_TRIM:
+            steer_value = STEER_MAX - STEER_TRIM
+        elif steer_value < -STEER_MAX - STEER_TRIM:
+            steer_value = -STEER_MAX - STEER_TRIM
         if power_value > POWER_MAX:
             power_value = POWER_MAX
         elif power_value < -POWER_MAX:
             power_value = -POWER_MAX
 
         # Convert to servo values
-        steer_value = 1540+steer_value
+        steer_value = 1500+steer_value+STEER_TRIM
         power_value = 1500+power_value
 
 	commandstring = str(int(steer_value)) + "," + str(int(power_value))
