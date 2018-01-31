@@ -30,9 +30,9 @@ class Robot:
         self.logger.display("Terminating...")
        
     def wait_for_start_switch(self):
-        pass #TODO: implement this
+        time.sleep(5) #TODO: implement this
         
-    def set_power_and_steering(power_value, steer_value):
+    def set_power_and_steering(self, power_value, steer_value):
         self.powersteering.set_power_and_steering(power_value, steer_value)
       
 

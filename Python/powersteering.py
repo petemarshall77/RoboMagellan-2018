@@ -15,8 +15,9 @@ class PowerSteering:
     def __init__(self, port_name, baud_rate, logger):
         self.logger = logger
         self.logger.write("PowerSteering: started.")
+	self.logger.write(port_name)
         self.serial = Serial(port_name, baud_rate)
-        self.set_power_and_steering(0,0)
+        #self.set_power_and_steering(0,0)
 
     def stop(self):
         self.logger.write("PowerSteering: stop")
@@ -36,9 +37,10 @@ class PowerSteering:
             power_value = -POWER_MAX
 
         # Convert to servo values
-        steer_value = 1500+steer_value
+        steer_value = 1540+steer_value
         power_value = 1500+power_value
 
-        self.serial.write(str(int(steer_value)) + "," + str(int(power_value)))
-        self.serial.write('\n')
+	commandstring = str(int(steer_value)) + "," + str(int(power_value))
+	self.logger.write(commandstring) 
+        self.serial.write(str(int(steer_value)) + "," + str(int(power_value)) + "\n")
         self.serial.flush()
