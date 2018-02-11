@@ -16,7 +16,7 @@ class PowerSteering:
     def __init__(self, port_name, baud_rate, logger):
         self.logger = logger
         self.logger.write("PowerSteering: started.")
-	self.logger.write(port_name)
+    	self.logger.write(port_name)
         self.serial = Serial(port_name, baud_rate)
         #self.set_power_and_steering(0,0)
 
@@ -41,7 +41,7 @@ class PowerSteering:
         steer_value = 1500+steer_value+STEER_TRIM
         power_value = 1500+power_value
 
-	commandstring = str(int(steer_value)) + "," + str(int(power_value))
+    	commandstring = str(int(steer_value)) + "," + str(int(power_value))
 	self.logger.write(commandstring) 
         self.serial.write(str(int(steer_value)) + "," + str(int(power_value)) + "\n")
         self.serial.flush()

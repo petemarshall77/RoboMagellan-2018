@@ -15,7 +15,7 @@
 //                       controller will use to compeletly stop the
 //                       robot.
 //
-//         2. MANUAL   - this is use to simply drive Monty as a remote
+//         2. MANUAL   - this is used to simply drive Monty as a remote
 //                       control vehicle. The CHIA simply passes the
 //                       throttle and steering PWM signals from the
 //                       radio receiver to the power contoller and
@@ -29,7 +29,7 @@
 //     set the value of either autoPin or manualPin to low. If both pins are
 //     high it indicates stopped mode. 
 //
-//     Note: the CHIA expects data to be send as newline ('\n') terminated
+//     Note: the CHIA expects data to be sent as newline ('\n') terminated
 //     strings. Don't send it CRs/LFs or CR/LFs, just newlines please.
 //     Failure to comply will void your warranty and may lead to serious
 //     injury or death (or, worse still, a robot that just sits there and
@@ -58,7 +58,7 @@ int system_state;
 
 // Pin declarations
 const int steer_Pin = 2;  // do not change: mapped to interrupt 0
-const int power_Pin = 3;  // do not change: mapped to interrrupt 1
+const int power_Pin = 3;  // do not change: mapped to interrupt 1
 const int auto_Pin = 5;
 const int manual_Pin = 6;
 const int steer_Out_1 = 11;
@@ -105,7 +105,6 @@ void setup()
   digitalWrite(steer_Out_2, LOW);
   digitalWrite(power_Out, LOW);
   digitalWrite(LED_pin, HIGH);
-  
 }
 
 //------------------------------------------------------------------------
@@ -113,7 +112,6 @@ void setup()
 //------------------------------------------------------------------------
 void loop()
 {
-  
   boolean isManual = digitalRead(manual_Pin);
   boolean isAuto = digitalRead(auto_Pin);
   

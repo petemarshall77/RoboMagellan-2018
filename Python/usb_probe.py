@@ -8,7 +8,7 @@ installed_devices = {
     '0000:00:1a.0':         'gps-test',  
     '95437313335351D0F171': 'chias',
     '95437313334351519012': 'compasswitch',
-    '9543731333435151B2E1': 'speedometer',
+    '95437313035351412061': 'speedometer',
     '9543731333535131D0D2': 'killswitch',
     '0000:00:14.0':         'gps',
     '95437313335351514292': 'lcd-display'
