@@ -17,6 +17,9 @@ class Speedometer:
         self.speed = 0 
         self.distance = 0
 
+    def get_speed(self):
+        return self.speed
+
     def terminate(self):
         self._running = False
 
