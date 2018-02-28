@@ -32,7 +32,7 @@ class Speedometer:
                     data = self.serial.readline().rstrip()
                     self.speed = float(data.split(',')[0]) * 0.1142
                     self.distance = float(data.split(',')[1]) * 0.1142
-                    self.logger.display("S = %f" % self.speed)
+                    #self.logger.display("S = %f" % self.speed)
                 except:
                     self.logger.write(traceback.format_exc())
 

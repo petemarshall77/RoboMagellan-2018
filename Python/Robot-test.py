@@ -10,8 +10,8 @@ robot.initialize()
 robot.wait_for_start_switch()
 
 try:
-     robot.set_speed_and_direction(1.0, 0)
-     time.sleep(30)
+     robot.set_speed_and_direction(0.0, 0)
+     time.sleep(20)
 #    time.sleep(10)
 #    robot.set_power_and_steering(40,-250)
 #    time.sleep(2)
