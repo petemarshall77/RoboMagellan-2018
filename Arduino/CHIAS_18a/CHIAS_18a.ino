@@ -252,19 +252,12 @@ void do_auto()
         power_value = MAX_POWER;
       }
 
-/*      //Check kill switch
-      if (digitalRead(kill_Switch == LOW))
+      //Check kill switch
+/*      if (digitalRead(kill_Switch) == LOW)
       {
         power_value = 1500;
-        digitalWrite(LED_pin, LOW);
-        break;
       }
-      else
-      {
-        digitalWrite(LED_pin, HIGH);
-      }
- */           
-   
+*/   
       // Got good values, kill switch is good, set steering and slew power to demand value
       steer_servo_1.writeMicroseconds(steer_value);
       steer_servo_2.writeMicroseconds(steer_value);

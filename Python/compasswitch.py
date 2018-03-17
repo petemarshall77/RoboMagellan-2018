@@ -36,7 +36,8 @@ class Compasswitch:
                         self.heading = 360 - angle * 180 / math.pi
                     else:
                         self.heading = -angle * 180 / math.pi
-                    self.heading = 1.13 * self.heading - 15.5 #TODO:recalibrate
+                        self.heading = 1.30 * self.heading - 35.17                 
+            #PLEASONTON self.heading = 1.13 * self.heading - 15.5 #TODO:recalibrate
                     self.logger.display(self.heading)
 		    if int(data.split(',')[2]) == 1:
                         self.bump_switch = True
