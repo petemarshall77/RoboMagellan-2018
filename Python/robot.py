@@ -8,6 +8,8 @@ from logger import Logger
 from powersteering import PowerSteering
 from speedometer import Speedometer
 from compasswitch import Compasswitch
+from gps import GPS
+from camera import Camera
 import usb_probe
 
 class Robot:
@@ -23,6 +25,8 @@ class Robot:
         self.speedometer = Speedometer(ports['speedometer'], 9600, self.logger)
         self.compasswitch = Compasswitch(ports['compasswitch'], 9600, self.logger)
         self.powersteering = PowerSteering(ports['chias'], 9600, self.logger, self.speedometer)
+        self.gps = GPS(ports['gps'], 4800, self.logger)
+        self.camera = Camera(9788, self.logger)
        
     def initialize(self):
         self.logger.write("Robot: initializing")
@@ -30,9 +34,13 @@ class Robot:
         self.speedometer_thread = Thread(target = self.speedometer.run)
         self.compasswitch_thread = Thread(target = self.compasswitch.run)
         self.powersteering_thread = Thread(target = self.powersteering.run)
-	self.compasswitch_thread.start()
-	self.speedometer_thread.start()
-	self.powersteering_thread.start()
+        self.gps_thread = Thread(target = self.gps.run)
+        self.camera_thread = Thread(target = self.camera.run)
+	    self.compasswitch_thread.start()
+	    self.speedometer_thread.start()
+	    self.powersteering_thread.start()
+	    self.gps_thread.start()
+	    self.camera_thread.start()
        
     def terminate(self):
         self.logger.write("Robot: terminating")
@@ -40,10 +48,18 @@ class Robot:
         self.speedometer.terminate()
         self.compasswitch.terminate()
         self.powersteering.terminate()
+        self.gps.terminate()
+        self.camera.terminate()
        
     def wait_for_start_switch(self):
         self.logger.display("Press start")
         while self.compasswitch.start_switch == False:
+            pass
+            
+    def wait_for_gps(self):
+        self.logger.display("Waiting for GPS")
+        self.logger.write("Waiting for GPS")
+        while self.gps.got_fix() == False:
             pass
         
     def set_power_and_steering(self, power_value, steer_value):
