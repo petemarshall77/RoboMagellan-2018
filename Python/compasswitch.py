@@ -29,21 +29,15 @@ class Compasswitch:
             if self.serial.inWaiting() > 0:
                 try:
                     data = self.serial.readline().rstrip()
-                    self.compassX = float(data.split(',')[0])
-                    self.compassY = float(data.split(',')[1])
-                    angle = math.atan2(self.compassY, self.compassX)
-                    if angle > 0.0:
-                        self.heading = 360 - angle * 180 / math.pi
-                    else:
-                        self.heading = -angle * 180 / math.pi
-                        self.heading = 1.30 * self.heading - 35.17                 
-            #PLEASONTON self.heading = 1.13 * self.heading - 15.5 #TODO:recalibrate
-                    self.logger.display(self.heading)
-		    if int(data.split(',')[2]) == 1:
+                    self.heading = float(data.split(',')[0])
+                    self.heading = -0.00002038*(self.heading**3)+0.012*(self.heading**2)-0.758*(self.heading)+42.43
+		    self.logger.display(self.heading)
+
+		    if int(data.split(',')[1]) == 1:
                         self.bump_switch = True
                     else:
                         self.bump_switch = False
-                    if int(data.split(',')[3]) == 1:
+                    if int(data.split(',')[2]) == 1:
                         self.start_switch = True
                     else:
                         self.start_switch = False

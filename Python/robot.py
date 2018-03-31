@@ -37,7 +37,7 @@ class Robot:
         self.gps_thread = Thread(target = self.gps.run)
         self.camera_thread = Thread(target = self.camera.run)
 	    self.compasswitch_thread.start()
-	    self.speedometer_thread.start()
+        self.speedometer_thread.start()
 	    self.powersteering_thread.start()
 	    self.gps_thread.start()
 	    self.camera_thread.start()
