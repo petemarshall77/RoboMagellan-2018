@@ -24,7 +24,7 @@ class Robot:
             self.logger.write("       %s, %s" % (ports[port], port))
         self.speedometer = Speedometer(ports['speedometer'], 9600, self.logger)
         self.compasswitch = Compasswitch(ports['compasswitch'], 9600, self.logger)
-        self.powersteering = PowerSteering(ports['chias'], 9600, self.logger, self.speedometer)
+        self.powersteering = PowerSteering(ports['chias'], 9600, self.logger, self.speedometer, self.compasswitch)
         self.gps = GPS(ports['gps'], 4800, self.logger)
         self.camera = Camera(9788, self.logger)
        
@@ -36,11 +36,11 @@ class Robot:
         self.powersteering_thread = Thread(target = self.powersteering.run)
         self.gps_thread = Thread(target = self.gps.run)
         self.camera_thread = Thread(target = self.camera.run)
-	    self.compasswitch_thread.start()
+	self.compasswitch_thread.start()
         self.speedometer_thread.start()
-	    self.powersteering_thread.start()
-	    self.gps_thread.start()
-	    self.camera_thread.start()
+        self.powersteering_thread.start()
+	self.gps_thread.start()
+	self.camera_thread.start()
        
     def terminate(self):
         self.logger.write("Robot: terminating")
@@ -52,9 +52,12 @@ class Robot:
         self.camera.terminate()
        
     def wait_for_start_switch(self):
+        self.logger.write("Press start")
         self.logger.display("Press start")
         while self.compasswitch.start_switch == False:
             pass
+        self.logger.write("Button Pressed")
+        self.logger.display("Button Pressed")
             
     def wait_for_gps(self):
         self.logger.display("Waiting for GPS")

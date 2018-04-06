@@ -7,6 +7,7 @@ from robot import Robot
 
 robot = Robot()
 robot.initialize()
+robot.wait_for_gps()
 robot.wait_for_start_switch()
 
 try:

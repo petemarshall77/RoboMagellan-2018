@@ -18,9 +18,13 @@ class Compasswitch:
         self.heading  = 0
         self.bump_switch = False
         self.start_switch = False
+        self.read_time = time.time()
 
     def terminate(self):
         self._running = False
+        
+    def get_heading(self):
+        return self.heading
 
     def run(self):
         self._running = True
@@ -31,9 +35,9 @@ class Compasswitch:
                     data = self.serial.readline().rstrip()
                     self.heading = float(data.split(',')[0])
                     self.heading = -0.00002038*(self.heading**3)+0.012*(self.heading**2)-0.758*(self.heading)+42.43
-		    self.logger.display(self.heading)
-
-		    if int(data.split(',')[1]) == 1:
+                    #self.logger.display(self.heading)
+                    
+                    if int(data.split(',')[1]) == 1:
                         self.bump_switch = True
                     else:
                         self.bump_switch = False
@@ -43,6 +47,9 @@ class Compasswitch:
                         self.start_switch = False
                 except:
                     pass  # ignore errors - more data will arrive very soon!
+            else: 
+                time.sleep(0.1)
+            self.read_time = time.time()
 
         self.logger.write("Compasswitch: terminated")
 

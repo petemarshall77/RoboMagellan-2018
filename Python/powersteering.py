@@ -12,13 +12,15 @@ STEER_MAX = 500
 POWER_MAX = 150
 STEER_TRIM = 40
 AUTOPILOT_POWER_GAIN = 1.0
+AUTOPILOT_STEERING_GAIN = 4.0
 
 class PowerSteering:
 
-    def __init__(self, port_name, baud_rate, logger, speedometer):
+    def __init__(self, port_name, baud_rate, logger, speedometer, compasswitch):
         self._running = False
         self.logger = logger
         self.speedometer = speedometer
+        self.compasswitch = compasswitch
         self.logger.write("PowerSteering: started.")
         self.power = 0
         self.steering = 0
@@ -60,9 +62,15 @@ class PowerSteering:
         self.direction = direction
         
     def terminate(self):
-        self.set_power_and_steering(0, 0)
-        time.sleep(1)
+        self.logger.write("Powersteering: terminated")
         self._running = False
+        time.sleep(1)
+        
+        steer_value = 1500
+        power_value = 1500
+    	commandstring = str(int(steer_value)) + "," + str(int(power_value))
+        self.Serial.write(str(int(steer_value)) + "," + str(int(power_value)) + "\n")
+        self.Serial.flush()
         
         
     def run(self):
@@ -71,14 +79,29 @@ class PowerSteering:
         while (self._running == True):
             if self.autopilot_on == True:
                 current_speed = self.speedometer.get_speed()
-		#Adjust Power for new Values  
+		        #Adjust Power for new Values  
                 self.power += int((self.speed - current_speed) * AUTOPILOT_POWER_GAIN)
+            
+                #Adjust steering
+                current_direction = self.compasswitch.get_heading()
+                delta_angle = self.direction - current_direction
+                if delta_angle > 180:
+                    self.steering = int((delta_angle - 360) * AUTOPILOT_STEERING_GAIN)
+                elif delta_angle < -180:
+                    self.steering = int((delta_angle + 360) * AUTOPILOT_STEERING_GAIN)
+                else:
+                    self.steering = int((delta_angle) * AUTOPILOT_STEERING_GAIN)
+                    
+                self.logger.write("Autopilot: power = %d, steer = %d, compass = %d, direction = %d" % (self.power, self.steering, current_direction, self.direction))
                 self.set_power_and_steering(self.power, self.steering, autopilot = True)
+                
+                
             if self.new_values == True:
                 steer_value = 1500+self.steering+STEER_TRIM
                 power_value = 1500+self.power
     	        commandstring = str(int(steer_value)) + "," + str(int(power_value))
                 self.Serial.write(str(int(steer_value)) + "," + str(int(power_value)) + "\n")
-                self.Serial.flush()
+                #self.Serial.flushOutput()
                 self.new_values = False
-                time.sleep(0.1) 
+                
+            time.sleep(0.2) 

@@ -237,13 +237,13 @@ void do_auto()
       // Process the data string, should be nnnn,nnnn (steer,power)
       steer_value = inputString.substring(0,4).toInt();
       power_value = inputString.substring(5,9).toInt();
-      Serial.println(steer_value);
-      Serial.println(power_value);
-      Serial.println("Power and Steer set");
+      //Serial.println(steer_value);
+      //Serial.println(power_value);
+      //Serial.println("Power and Steer set");
       if (steer_value < 1000 || steer_value > 2000 || power_value < 1000 || power_value > 2000) {
-        Serial.println("Bad data from laptop. PANIC");
-        Serial.println(steer_value + " " + power_value);
-        Serial.flush();
+        //Serial.println("Bad data from laptop. PANIC");
+        //Serial.println(steer_value + " " + power_value);
+        //Serial.flush();
         panic();  // bad data, assume communication error, panic
       }
       
@@ -252,21 +252,28 @@ void do_auto()
         power_value = MAX_POWER;
       }
 
-      //Check kill switch
-/*      if (digitalRead(kill_Switch) == LOW)
+/*      //Check kill switch
+      if (digitalRead(kill_Switch == LOW))
       {
         power_value = 1500;
+        digitalWrite(LED_pin, LOW);
+        break;
       }
-*/   
+      else
+      {
+        digitalWrite(LED_pin, HIGH);
+      }
+ */           
+   
       // Got good values, kill switch is good, set steering and slew power to demand value
       steer_servo_1.writeMicroseconds(steer_value);
       steer_servo_2.writeMicroseconds(steer_value);
-      Serial.println(steer_value);
+      //Serial.println(steer_value);
       if (power_value > current_power) {
         while (current_power < power_value) {
           current_power++;
           power_servo.writeMicroseconds(current_power);
-          delay(10);
+          //delay(10);
         }
       }
       else if (current_power > power_value) {
