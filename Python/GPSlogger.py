@@ -19,7 +19,7 @@ from threading import Thread
 GPS_run_flag = False
 GPS_Lat = 0
 GPS_Long = 0
-GPS_port_name = '/dev/ttyACM3'      
+GPS_port_name = '/dev/ttyUSB0'      
 
 # Start the GPS serial port
 print "Starting GPS Communications"

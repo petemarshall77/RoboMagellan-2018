@@ -22,6 +22,12 @@ class GPS:
             return True
         else:
             return False
+            
+    def get_latitude(self):
+        return float(self.latitude)
+        
+    def get_longitude(self):
+        return float(self.longitude)
 
     def run(self):
         self._running = True

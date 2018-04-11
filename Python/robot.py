@@ -11,6 +11,10 @@ from compasswitch import Compasswitch
 from gps import GPS
 from camera import Camera
 import usb_probe
+import utils
+
+# Configuration
+GPS_ERROR_RADIUS = 5.0
 
 class Robot:
 
@@ -69,4 +73,29 @@ class Robot:
         self.powersteering.set_power_and_steering(power_value, steer_value)
 
     def set_speed_and_direction(self, speed, direction):
-	self.powersteering.set_speed_and_direction(speed, direction)
+        self.powersteering.set_speed_and_direction(speed, direction)
+	
+    def drive_to_waypoint(self, target_lat, target_lon, speed):
+	    self.logger.write("Called drive_to_waypoint: lat=%0.5f, lon=%0.5f, speed=%0.1f" % (target_lat, target_lon, speed))
+	    (distance, bearing) = utils.get_distance_and_bearing (
+	                                self.gps.get_latitude(),
+	                                self.gps.get_longitude(),
+	                                target_lat,
+	                                target_lon )
+	    
+	    while distance >  GPS_ERROR_RADIUS:
+	        self.logger.write("Drive_to_waypoint: distance=%0.2f, bearing=%0.1f, speed=%0.2f" % (distance, bearing, speed))
+	        self.logger.display("D2W %0.1f, %05.1f" % (distance, bearing))
+	        self.powersteering.set_speed_and_direction(speed, bearing)
+	        time.sleep(0.5)
+	        (distance, bearing) = utils.get_distance_and_bearing (
+	                                self.gps.get_latitude(),
+	                                self.gps.get_longitude(),
+	                                target_lat,
+	                                target_lon )
+	    
+	    self.logger.write("Drive_to_waypoint: arrived, distance = %o.2f" % distance)
+	    
+	    self.powersteering.set_speed_and_direction(0.0, bearing)    
+	        
+	    
