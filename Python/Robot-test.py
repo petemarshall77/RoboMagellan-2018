@@ -12,8 +12,10 @@ robot.wait_for_start_switch()
 
 try:
     robot.drive_to_waypoint(33.77858833333333, 118.41891833333334, 2.0)
-    time.sleep(10)
+    robot.backup_to_compass(180)
+#    time.sleep(10)
     robot.drive_to_waypoint(33.778481666666664, 118.41900333333334, 2.0)
+    robot.backup_to_compass(0)
 #    robot.set_speed_and_direction(1.5, 200)
 #    time.sleep(30)
 #    robot.set_speed_and_direction(1.5, 20)

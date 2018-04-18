@@ -96,6 +96,46 @@ class Robot:
 	    
 	    self.logger.write("Drive_to_waypoint: arrived, distance = %o.2f" % distance)
 	    
-	    self.powersteering.set_speed_and_direction(0.0, bearing)    
+	    self.powersteering.set_speed_and_direction(0.0, bearing)
+	    
+    def backup_to_compass(self, target_heading, power = -100, steer = 400, accuracy = 5, timeout = 10):
+        self.logger.write("Back up to Compass: target = %d , power = %d , steer = %d , accuracy = %d , timeout = %d"
+                           % (target_heading, power, steer, accuracy, timeout))
+        delta_angle = target_heading - self.compasswitch.get_heading()
+        
+        if delta_angle > 180:
+            delta_angle = int(delta_angle + 360)
+        elif delta_angle < -180:
+            delta_angle = int(delta_angle - 360)
+        else:
+            delta_angle = int(delta_angle)
+        
+        if delta_angle > 0:
+            steering = -steer
+        elif delta_angle < 0:
+            steering = steer
+        else:
+            return
+            
+        start_time = time.time()
+        self.powersteering.set_power_and_steering(power, steering)
+        while time.time() - start_time < timeout and abs(target_heading - self.compasswitch.get_heading()) > accuracy:
+            self.logger.display("B2C: tgt=%d cur=%d" % (target_heading, self.compasswitch.get_heading()))
+        self.powersteering.set_power_and_steering(0, 0)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 	        
 	    
