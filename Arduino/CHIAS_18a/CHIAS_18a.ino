@@ -223,11 +223,11 @@ void do_auto()
     }*/
 
     // If killswitch is LOW, stop the robot
-    /*if (digitalRead(kill_Switch) == LOW) {
+    if (digitalRead(kill_Switch) == LOW) {
       power_servo.writeMicroseconds(1500);
       current_power = 1500;
       continue;
-    }*/
+    }
     
     // Process line of data if available
     if (readLine(serialBuffer)) {
