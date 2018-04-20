@@ -35,6 +35,9 @@ class PowerSteering:
     def stop(self):
         self.logger.write("PowerSteering: stop")
         self.set_power_and_steering(0, 0)
+        
+    def get_power(self):
+        return self.power
 
     def set_power_and_steering(self, power_value, steer_value, autopilot = False):
         self.logger.write("PowerSteering: power %d, steer %d" %

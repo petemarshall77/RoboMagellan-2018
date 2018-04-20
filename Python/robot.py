@@ -84,8 +84,10 @@ class Robot:
 	                                target_lon )
 	    
 	    while distance >  GPS_ERROR_RADIUS:
-	        self.logger.write("Drive_to_waypoint: distance=%0.2f, bearing=%0.1f, speed=%0.2f" % (distance, bearing, speed))
+	        self.logger.write("Drive_to_waypoint: distance=%0.2f, bearing=%0.1f, tgt_speed=%0.2f" % (distance, bearing, speed))
+	        self.logger.write("Drive_to_waypoint: actual_speed=%0.2f, power=%d" % (self.speedometer.get_speed(), self.powersteering.get_power()))
 	        self.logger.display("D2W %0.1f, %05.1f" % (distance, bearing))
+	        self.logger.display("D2W %0.1f, %d" % (self.speedometer.get_speed(), self.powersteering.get_power())) 
 	        self.powersteering.set_speed_and_direction(speed, bearing)
 	        time.sleep(0.5)
 	        (distance, bearing) = utils.get_distance_and_bearing (
@@ -96,9 +98,8 @@ class Robot:
 	    
 	    self.logger.write("Drive_to_waypoint: arrived, distance = %o.2f" % distance)
 	    
-	    self.powersteering.set_speed_and_direction(0.0, bearing)
 	    
-    def backup_to_compass(self, target_heading, power = -100, steer = 400, accuracy = 5, timeout = 10):
+    def backup_to_compass(self, target_heading, power = -100, steer = 400, accuracy = 15, timeout = 10):
         self.logger.write("Back up to Compass: target = %d , power = %d , steer = %d , accuracy = %d , timeout = %d"
                            % (target_heading, power, steer, accuracy, timeout))
         delta_angle = target_heading - self.compasswitch.get_heading()
@@ -123,8 +124,13 @@ class Robot:
             self.logger.display("B2C: tgt=%d cur=%d" % (target_heading, self.compasswitch.get_heading()))
         self.powersteering.set_power_and_steering(0, 0)
     
-    
-    
+    def backup_to_waypoint(self, target_lat, target_lon):
+        (distance, bearing) = utils.get_distance_and_bearing (
+	                                self.gps.get_latitude(),
+	                                self.gps.get_longitude(),
+	                                target_lat,
+	                                target_lon )
+        self.backup_to_compass(bearing)
     
     
     
