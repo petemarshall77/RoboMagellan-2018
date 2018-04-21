@@ -6,7 +6,7 @@
 #      2 - go to desired GPS location
 #      3 - hit 'r' to reset data collection
 #      4 - wait for samples collected to get to 30
-#      5 - hit 'c' to capture point
+#      5 - hit 'w' to capture point
 #      6 - repeat steps 2 thru 5 as necessary
 #      7 - hit 'q' to quit
 #      8 - cut and paste the output into the RoboMagellan program

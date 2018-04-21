@@ -75,7 +75,7 @@ class Robot:
     def set_speed_and_direction(self, speed, direction):
         self.powersteering.set_speed_and_direction(speed, direction)
 	
-    def drive_to_waypoint(self, target_lat, target_lon, speed):
+    def drive_to_waypoint(self, target_lat, target_lon, speed, accuracy = GPS_ERROR_RADIUS):
 	    self.logger.write("Called drive_to_waypoint: lat=%0.5f, lon=%0.5f, speed=%0.1f" % (target_lat, target_lon, speed))
 	    (distance, bearing) = utils.get_distance_and_bearing (
 	                                self.gps.get_latitude(),
@@ -83,7 +83,7 @@ class Robot:
 	                                target_lat,
 	                                target_lon )
 	    
-	    while distance >  GPS_ERROR_RADIUS:
+	    while distance >  accuracy:
 	        self.logger.write("Drive_to_waypoint: distance=%0.2f, bearing=%0.1f, tgt_speed=%0.2f" % (distance, bearing, speed))
 	        self.logger.write("Drive_to_waypoint: actual_speed=%0.2f, power=%d" % (self.speedometer.get_speed(), self.powersteering.get_power()))
 	        self.logger.display("D2W %0.1f, %05.1f" % (distance, bearing))
@@ -97,6 +97,76 @@ class Robot:
 	                                target_lon )
 	    
 	    self.logger.write("Drive_to_waypoint: arrived, distance = %o.2f" % distance)
+	    
+    def drive_to_cone(self, target_lat, target_lon, tgt_speed, gps_accuracy=GPS_ERROR_RADIUS, timeout=3600):
+        self.logger.write("Called drive to cone: lat=%0.5f, lon=%0.5f, tgt_speed=%0.5f, gps_accuracy = %0.5f, timeout=%d"
+                            % (target_lat, target_lon, tgt_speed, gps_accuracy, timeout))
+                            
+        start_time = time.time()
+        camera_mode = False
+        
+        while (time.time() - start_time < timeout):
+            # Get the robot pose
+            (distance, bearing) = utils.get_distance_and_bearing (
+	                                self.gps.get_latitude(),
+	                                self.gps.get_longitude(),
+	                                target_lat,
+	                                target_lon )
+            compass = self.compasswitch.get_heading()
+            speed = self.speedometer.get_speed()
+            (blob_location, blob_size) = self.camera.get_blob_info()
+            bump_switch = self.compasswitch.get_bump_switch()
+            self.logger.write("D2C: dst=%0.5f, head=%0.5f, compass=%0.5f, tgt_speed=%0.5f, speed=%0.5f, blob_loc=%d, blob_size=%d, bump=%s" 
+	                             % (distance, bearing , compass, tgt_speed, speed, blob_location, blob_size, bump_switch))
+	        
+	        # GPS mode
+            if not camera_mode:
+	        
+	            if not bump_switch:
+	                
+	                if distance > gps_accuracy:
+	                    # continue to drive to waypoint
+	                    self.logger.write("D2C GPS mode")
+	                    self.logger.display("D2C %0.1f, %05.1f" % (distance, bearing))
+	                    self.logger.display("D2C %0.1f, %d" % (self.speedometer.get_speed(), self.powersteering.get_power())) 
+	                    self.powersteering.set_speed_and_direction(tgt_speed, bearing)
+	                    
+	                    
+	                else:
+	                    # set to camera mode
+	                    camera_mode = True
+	                    
+	            else:
+	                # deal with collision
+	                pass 
+	        
+	        # Camera mode
+            else:
+                
+                if distance < gps_accuracy:
+                
+                    if bump_switch == False:
+                        # Still looking for cone
+                        self.logger.write("D2C: Camera mode")
+                        if blob_size == 0:
+                            blob_location = 32 #Drive Straight if no pixels
+                        self.powersteering.set_power_and_steering(50, int((blob_location) - 32) * 10)
+                        
+                    else:   
+                        # Hit the cone (presumably!)
+                        self.powersteering.set_power_and_steering(0, 0)
+                        self.logger.write("D2C: Hit cone!!!")
+                        return
+                          
+                else:
+                    # set back to GPS mode
+                    self.logger.write("D2C: left camera mode - GPS distance too great")
+                    camera_mode = False
+                
+            time.sleep(0.1)        
+        else:
+            self.logger.write("D2C: timed out")
+        
 	    
 	    
     def backup_to_compass(self, target_heading, power = -100, steer = 400, accuracy = 15, timeout = 10):

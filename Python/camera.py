@@ -18,6 +18,9 @@ class Camera:
 
     def terminate(self):
         self._running = False
+        
+    def get_blob_info(self):
+        return (int(self.blob_location), int(self.blob_size))
 
     def run(self):
         self._running = True

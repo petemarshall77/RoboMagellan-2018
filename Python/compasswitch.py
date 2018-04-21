@@ -23,6 +23,9 @@ class Compasswitch:
     def terminate(self):
         self._running = False
         
+    def get_bump_switch(self):
+        return self.bump_switch
+        
     def get_heading(self):
         return self.heading
 
