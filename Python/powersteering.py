@@ -11,7 +11,7 @@ import time
 STEER_MAX = 500
 POWER_MAX = 150
 STEER_TRIM = 40
-AUTOPILOT_POWER_GAIN = 1.0
+AUTOPILOT_POWER_GAIN = 0.5
 AUTOPILOT_STEERING_GAIN = 4.0
 
 class PowerSteering:
@@ -83,7 +83,7 @@ class PowerSteering:
             if self.autopilot_on == True:
                 current_speed = self.speedometer.get_speed()
 		        #Adjust Power for new Values  
-                self.power += int((self.speed - current_speed) * AUTOPILOT_POWER_GAIN)
+                self.power += int((self.speed - current_speed)**3 * AUTOPILOT_POWER_GAIN)
             
                 #Adjust steering
                 current_direction = self.compasswitch.get_heading()

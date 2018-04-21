@@ -120,8 +120,12 @@ class Robot:
             
         start_time = time.time()
         self.powersteering.set_power_and_steering(power, steering)
-        while time.time() - start_time < timeout and abs(target_heading - self.compasswitch.get_heading()) > accuracy:
+        while abs(target_heading - self.compasswitch.get_heading()) > accuracy:
             self.logger.display("B2C: tgt=%d cur=%d" % (target_heading, self.compasswitch.get_heading()))
+            if time.time() - start_time > timeout:
+                self.logger.write("B2C - Timed Out")
+                break
+                
         self.powersteering.set_power_and_steering(0, 0)
     
     def backup_to_waypoint(self, target_lat, target_lon):
