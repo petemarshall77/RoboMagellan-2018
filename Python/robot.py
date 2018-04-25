@@ -68,6 +68,8 @@ class Robot:
         self.logger.write("Waiting for GPS")
         while self.gps.got_fix() == False:
             pass
+        self.logger.display("Got GPS Fix")
+        self.logger.write("Got GPS Fix")
         
     def set_power_and_steering(self, power_value, steer_value):
         self.powersteering.set_power_and_steering(power_value, steer_value)
@@ -98,9 +100,9 @@ class Robot:
 	    
 	    self.logger.write("Drive_to_waypoint: arrived, distance = %o.2f" % distance)
 	    
-    def drive_to_cone(self, target_lat, target_lon, tgt_speed, gps_accuracy=GPS_ERROR_RADIUS, timeout=3600):
-        self.logger.write("Called drive to cone: lat=%0.5f, lon=%0.5f, tgt_speed=%0.5f, gps_accuracy = %0.5f, timeout=%d"
-                            % (target_lat, target_lon, tgt_speed, gps_accuracy, timeout))
+    def drive_to_cone(self, target_lat, target_lon, tgt_speed, camera_speed=1, gps_accuracy=GPS_ERROR_RADIUS, timeout=3600):
+        self.logger.write("Called drive to cone: lat=%0.5f, lon=%0.5f, tgt_speed=%0.5f, camera_speed=%0.5f, gps_accuracy = %0.5f, timeout=%d"
+                            % (target_lat, target_lon, tgt_speed, camera_speed, gps_accuracy, timeout))
                             
         start_time = time.time()
         camera_mode = False
@@ -150,7 +152,8 @@ class Robot:
                         self.logger.write("D2C: Camera mode")
                         if blob_size == 0:
                             blob_location = 32 #Drive Straight if no pixels
-                        self.powersteering.set_power_and_steering(50, int((blob_location) - 32) * 10)
+                        self.powersteering.set_steering(int((blob_location) - 32) * 10)
+                        self.powersteering.set_speed(camera_speed)
                         
                     else:   
                         # Hit the cone (presumably!)
@@ -169,9 +172,9 @@ class Robot:
         
 	    
 	    
-    def backup_to_compass(self, target_heading, power = -100, steer = 400, accuracy = 15, timeout = 10):
+    def backup_to_compass(self, target_heading, speed = -1, steer = 400, accuracy = 15, timeout = 10):
         self.logger.write("Back up to Compass: target = %d , power = %d , steer = %d , accuracy = %d , timeout = %d"
-                           % (target_heading, power, steer, accuracy, timeout))
+                           % (target_heading, speed, steer, accuracy, timeout))
         delta_angle = target_heading - self.compasswitch.get_heading()
         
         if delta_angle > 180:
@@ -189,7 +192,9 @@ class Robot:
             return
             
         start_time = time.time()
-        self.powersteering.set_power_and_steering(power, steering)
+        self.powersteering.set_steering(steering)
+        self.powersteering.set_speed(speed)
+  
         while abs(target_heading - self.compasswitch.get_heading()) > accuracy:
             self.logger.display("B2C: tgt=%d cur=%d" % (target_heading, self.compasswitch.get_heading()))
             if time.time() - start_time > timeout:

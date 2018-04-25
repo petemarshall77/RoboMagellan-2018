@@ -25,7 +25,8 @@ class PowerSteering:
         self.power = 0
         self.steering = 0
         self.new_values = False
-        self.autopilot_on = False
+        self.autopilot_power = False
+        self.autopilot_steer = False
         self.speed = 0
         self.direction = 0
 	power_value = 0
@@ -38,11 +39,31 @@ class PowerSteering:
         
     def get_power(self):
         return self.power
-
-    def set_power_and_steering(self, power_value, steer_value, autopilot = False):
-        self.logger.write("PowerSteering: power %d, steer %d" %
-                          (power_value, steer_value))
-        self.autopilot_on = autopilot
+        
+    def set_power(self, power_value, autopilot_power=False):
+        self.logger.write("Powersteering set_power: power=%d, autopilot_power=%s" % (power_value, autopilot_power))
+        if power_value > POWER_MAX:
+            power_value = POWER_MAX
+        elif power_value < -POWER_MAX:
+            power_value = -POWER_MAX
+        self.power = power_value
+        self.autopilot_power = autopilot_power
+        self.new_values = True
+        
+    def set_steering(self, steer_value, autopilot_steer=False):
+        self.logger.write("Powersteering set_steering: steer_value=%d, autopilot_steer=%s" % (steer_value, autopilot_steer))
+        if steer_value > STEER_MAX - STEER_TRIM:
+            steer_value = STEER_MAX - STEER_TRIM
+        elif steer_value < -STEER_MAX - STEER_TRIM:
+            steer_value = -STEER_MAX - STEER_TRIM
+        self.steering = steer_value
+        self.autopilot_steer = autopilot_steer
+        self.new_values = True               
+        
+    def set_power_and_steering(self, power_value, steer_value, autopilot_power = False, autopilot_steer = False):
+        self.logger.write("PowerSteering set_power_and_steering: power=%d, steer=%d" % (power_value, steer_value))
+        self.autopilot_power = autopilot_power
+        self.autopilot_steer = autopilot_steer
                           
         # Condition values past
         if steer_value > STEER_MAX - STEER_TRIM:
@@ -57,10 +78,21 @@ class PowerSteering:
         self.steering = steer_value
         self.new_values = True
     
+    def set_speed(self, speed):
+        self.logger.write("PowerSteering set_speed: speed=%d" % speed)
+        self.speed = speed
+        self.autopilot_power = True
+        
+    def set_direction(self, direction):
+        self.logger.write("Powersteering set_direction: direction=%d" % direction)
+        self.direction = direction
+        self.autopilot_steer = True
+         
     def set_speed_and_direction(self, speed, direction):
         self.logger.write("Powersteering: speed %f, direction %d" %
                            (speed, direction))
-        self.autopilot_on = True
+        self.autopilot_power = True
+        self.autopilot_steer = True
         self.speed = speed
         self.direction = direction
         
@@ -80,12 +112,16 @@ class PowerSteering:
         self._running = True
         self.logger.write("PowerSteering: running")
         while (self._running == True):
-            if self.autopilot_on == True:
+            if self.autopilot_power == True:
                 current_speed = self.speedometer.get_speed()
-		        #Adjust Power for new Values  
-                self.power += int((self.speed - current_speed)**3 * AUTOPILOT_POWER_GAIN)
+                if self.speed >= 0:  
+                    self.power += int((self.speed - current_speed)**3 * AUTOPILOT_POWER_GAIN)
+                else:
+                    self.power += int((self.speed + current_speed)**3 * AUTOPILOT_POWER_GAIN)    
+                self.set_power(self.power, autopilot_power = True)
+                self.logger.write("Autopilot power: %d" % self.power)
             
-                #Adjust steering
+            if self.autopilot_steer == True:
                 current_direction = self.compasswitch.get_heading()
                 delta_angle = self.direction - current_direction
                 if delta_angle > 180:
@@ -94,17 +130,14 @@ class PowerSteering:
                     self.steering = int((delta_angle + 360) * AUTOPILOT_STEERING_GAIN)
                 else:
                     self.steering = int((delta_angle) * AUTOPILOT_STEERING_GAIN)
-                    
-                self.logger.write("Autopilot: power = %d, steer = %d, compass = %d, direction = %d" % (self.power, self.steering, current_direction, self.direction))
-                self.set_power_and_steering(self.power, self.steering, autopilot = True)
-                
+                self.set_steering(self.steering, autopilot_steer = True)                      
+                self.logger.write("Autopilot steer: steer = %d, compass = %d, direction = %d" % (self.steering, current_direction, self.direction))
                 
             if self.new_values == True:
                 steer_value = 1500+self.steering+STEER_TRIM
                 power_value = 1500+self.power
     	        commandstring = str(int(steer_value)) + "," + str(int(power_value))
                 self.Serial.write(str(int(steer_value)) + "," + str(int(power_value)) + "\n")
-                #self.Serial.flushOutput()
                 self.new_values = False
                 
             time.sleep(0.2) 

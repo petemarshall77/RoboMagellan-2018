@@ -1,4 +1,4 @@
-#This is the Monte test program
+#This is the Monty test program
 
 import time
 import traceback
