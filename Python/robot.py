@@ -14,7 +14,7 @@ import usb_probe
 import utils
 
 # Configuration
-GPS_ERROR_RADIUS = 5.0
+GPS_ERROR_RADIUS = 4.0
 
 class Robot:
 
@@ -32,19 +32,24 @@ class Robot:
         self.gps = GPS(ports['gps'], 4800, self.logger)
         self.camera = Camera(9788, self.logger)
        
-    def initialize(self):
+    def initialize(self, speedometer = True, compasswitch = True, powersteering = True, gps = True, camera = True):
         self.logger.write("Robot: initializing")
         self.logger.display("Initializing...")
-        self.speedometer_thread = Thread(target = self.speedometer.run)
-        self.compasswitch_thread = Thread(target = self.compasswitch.run)
-        self.powersteering_thread = Thread(target = self.powersteering.run)
-        self.gps_thread = Thread(target = self.gps.run)
-        self.camera_thread = Thread(target = self.camera.run)
-	self.compasswitch_thread.start()
-        self.speedometer_thread.start()
-        self.powersteering_thread.start()
-	self.gps_thread.start()
-	self.camera_thread.start()
+        if speedometer == True:
+            self.speedometer_thread = Thread(target = self.speedometer.run)
+            self.speedometer_thread.start()
+        if compasswitch == True:
+            self.compasswitch_thread = Thread(target = self.compasswitch.run)
+            self.compasswitch_thread.start()
+        if powersteering == True:
+            self.powersteering_thread = Thread(target = self.powersteering.run)
+            self.powersteering_thread.start()
+        if gps == True:
+            self.gps_thread = Thread(target = self.gps.run)
+            self.gps_thread.start()
+        if camera == True:
+            self.camera_thread = Thread(target = self.camera.run)
+            self.camera_thread.start()
        
     def terminate(self):
         self.logger.write("Robot: terminating")
@@ -100,7 +105,7 @@ class Robot:
 	    
 	    self.logger.write("Drive_to_waypoint: arrived, distance = %o.2f" % distance)
 	    
-    def drive_to_cone(self, target_lat, target_lon, tgt_speed, camera_speed=1, gps_accuracy=GPS_ERROR_RADIUS, timeout=3600):
+    def drive_to_cone(self, target_lat, target_lon, tgt_speed, camera_speed=1.1, gps_accuracy=GPS_ERROR_RADIUS, timeout=3600):
         self.logger.write("Called drive to cone: lat=%0.5f, lon=%0.5f, tgt_speed=%0.5f, camera_speed=%0.5f, gps_accuracy = %0.5f, timeout=%d"
                             % (target_lat, target_lon, tgt_speed, camera_speed, gps_accuracy, timeout))
                             

@@ -11,7 +11,8 @@ import time
 STEER_MAX = 500
 POWER_MAX = 150
 STEER_TRIM = 40
-AUTOPILOT_POWER_GAIN = 0.5
+AUTOPILOT_POWER_P_GAIN = 3
+AUTOPILOT_POWER_D_GAIN = 1
 AUTOPILOT_STEERING_GAIN = 4.0
 
 class PowerSteering:
@@ -113,11 +114,11 @@ class PowerSteering:
         self.logger.write("PowerSteering: running")
         while (self._running == True):
             if self.autopilot_power == True:
-                current_speed = self.speedometer.get_speed()
+                (current_speed, current_acceleration) = self.speedometer.get_speed_and_acceleration()
                 if self.speed >= 0:  
-                    self.power += int((self.speed - current_speed)**3 * AUTOPILOT_POWER_GAIN)
+                    self.power += int((self.speed - current_speed) * AUTOPILOT_POWER_P_GAIN - current_acceleration * AUTOPILOT_POWER_D_GAIN)
                 else:
-                    self.power += int((self.speed + current_speed)**3 * AUTOPILOT_POWER_GAIN)    
+                    self.power += int((self.speed + current_speed) * AUTOPILOT_POWER_P_GAIN + current_acceleration * AUTOPILOT_POWER_D_GAIN)    
                 self.set_power(self.power, autopilot_power = True)
                 self.logger.write("Autopilot power: %d" % self.power)
             

@@ -37,8 +37,12 @@ class Compasswitch:
                 try:
                     data = self.serial.readline().rstrip()
                     self.heading = float(data.split(',')[0])
-                    self.heading = -0.00002038*(self.heading**3)+0.012*(self.heading**2)-0.758*(self.heading)+42.43
+                    self.heading = 0.00000738517*(self.heading**3)-0.003247*(self.heading**2)+1.249041*(self.heading)+20.93111734
+                    #self.heading = -0.00002038*(self.heading**3)+0.012*(self.heading**2)-0.758*(self.heading)+42.43
                     #self.logger.display(self.heading)
+                    
+                    if self.heading > 360:
+                        self.heading -=360
                     
                     if int(data.split(',')[1]) == 1:
                         self.bump_switch = True
