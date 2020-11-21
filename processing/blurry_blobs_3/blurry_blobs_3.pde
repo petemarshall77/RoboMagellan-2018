@@ -6,7 +6,7 @@ import processing.net.*;
 
 Capture cam;
 int last_frame_time;
-color trackColor = color(255, 125, 25);
+color trackColor = color(255, 124, 25);
 color nextColor = trackColor;
 color black = color(255,255,255);
 int threshold = 50;
@@ -24,19 +24,19 @@ void setup() {
   }
   cam = new Capture(this, cameras[30]);
   cam.start();
-  
+
   // Screen settings
   size(640, 480);
   textSize(12);
   fill(255);
-  
+
   // Start the network server
   myserver = new Server(this, 9788);
-  
+
   // Get the saved trackcolor
   String[] savedColors = loadStrings("Colorsave.txt");
   nextColor = color(unbinary(savedColors[0]), unbinary(savedColors[1]), unbinary(savedColors[2]));
-  
+
   current_blob = new ArrayList<Integer>();
   biggest_blob = new ArrayList<Integer>();
 
@@ -46,7 +46,7 @@ void setup() {
 
 
 void draw()
-{  
+{
   // Handle the next available frame
   if (cam.available() == true) {
     cam.read();
@@ -54,13 +54,13 @@ void draw()
     loadPixels();
     blurFrame();
     processFrame();
-    //updatePixels();    
-  
+    //updatePixels();
+
     // Write the framerate
     float frame_rate = 1000.0/(millis() - last_frame_time);
     last_frame_time = millis();
     text("Framerate: " + str(frame_rate), 3, 12);
-    
+
     // Update the track color
     trackColor = nextColor;
   }
@@ -84,7 +84,7 @@ void blurFrame()
           redsum += red(pixels[loc]);
           greensum += green(pixels[loc]);
           bluesum += blue(pixels[loc]);
-          
+
         }
       }
       redsum /= (chunksize * chunksize);
@@ -129,13 +129,13 @@ void processBlob(int loc)
   current_blob.clear();
   current_blob.add(loc);  // add our starting pixel to the blob
   int start_index = 0;
-  
+
   // Go through the list of pixels, adding further pixels
   // to the list itself until no more pixels are found.
   while (true) {
     ArrayList<Integer> neighbors = new ArrayList<Integer>();
     neighbors = get_neighbors(current_blob.get(start_index));
-    for (int i = 0; i < neighbors.size(); i++) { 
+    for (int i = 0; i < neighbors.size(); i++) {
       //if (inCurrentBlob(neighbors.get(i)) == false) { // Don't add to list if it already exists.
       if (!current_blob.contains(neighbors.get(i))) {
         current_blob.add(neighbors.get(i));
@@ -148,7 +148,7 @@ void processBlob(int loc)
       break;
     }
   }
-  
+
   // Is this the new biggest blob?
   if (current_blob.size() > biggest_blob.size()) {
     biggest_blob.clear();
@@ -163,30 +163,30 @@ void processBlob(int loc)
 ArrayList get_neighbors(int loc) {
   ArrayList<Integer> neighbors = new ArrayList<Integer>();
   int target;
-  
+
   target = loc + 1;
   if(target % (width/chunksize) != 0){
    if(isColor(target) == true){
      neighbors.add(target);
     }
   }
-  
+
   target = loc + (width/chunksize) - 1;
   if(loc % (width/chunksize) != 0){
     if(target < (width/chunksize)*(height/chunksize)){
       if(isColor(target) == true){
-       neighbors.add(target); 
+       neighbors.add(target);
       }
     }
   }
-  
+
   target = loc + (width/chunksize);
   if(target < (width/chunksize)*(height/chunksize)){
     if(isColor(target) == true){
       neighbors.add(target);
     }
   }
-  
+
   target = loc + (width/chunksize) + 1;
   if(target < (width/chunksize) * (height/chunksize)){
     if(target % (width/chunksize) != 0){
@@ -195,7 +195,7 @@ ArrayList get_neighbors(int loc) {
       }
     }
   }
-  
+
   target = loc - (width/chunksize) - 1;
   if(target > ((width/chunksize) - 1)){
     if(loc % (width/chunksize) != 0){
@@ -204,7 +204,7 @@ ArrayList get_neighbors(int loc) {
       }
     }
   }
-  
+
   return neighbors;
 }
 
@@ -223,7 +223,7 @@ boolean isColor(int loc)
 {
   color cc = bloxels[loc]; // current color
   color tc = trackColor;  // track color
-  
+
   if (dist(red(cc), green(cc), blue(cc), red(tc), green(tc), blue(tc)) < threshold) {
     return true;
   } else {
@@ -260,12 +260,12 @@ void makeBox()
   int ySum = 0;
   int xAvg = 0;
   int yAvg = 0;
-  
+
   for (int i = 0; i < biggest_blob.size(); i++)
   {
     xCoord = biggest_blob.get(i) % (width/chunksize);
     yCoord = (int)(biggest_blob.get(i) / (width/chunksize));
-    
+
     if(yCoord < topMost)
     {
       topMost = yCoord;
@@ -282,19 +282,19 @@ void makeBox()
     {
       rightMost = xCoord;
     }
-    
+
     xSum += xCoord;
     ySum += yCoord;
   }
   xAvg = xSum / biggest_blob.size();
   yAvg = ySum / biggest_blob.size();
-  
+
   strokeWeight(5.0);
   stroke(0, 0, 255);
   noFill();
   //fill(0,0,255);
   rect((leftMost*chunksize), (topMost*chunksize), ((rightMost-leftMost)*chunksize + chunksize), ((bottomMost-topMost)*chunksize) + chunksize);
-  
+
   line(xAvg*chunksize, topMost*chunksize, xAvg*chunksize, bottomMost*chunksize+chunksize);
   line(leftMost*chunksize, yAvg*chunksize, rightMost*chunksize+chunksize, yAvg*chunksize);
 
